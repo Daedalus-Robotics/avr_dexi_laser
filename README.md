@@ -1,3 +1,3 @@
-# avr_dexi_2024_laser
+# avr_dexi_laser
 
 A node to fire laser

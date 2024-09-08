@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = "avr_dexi_2024_laser"
+package_name = "avr_dexi_laser"
 
 setup(
     name=package_name,
@@ -18,6 +18,6 @@ setup(
     license="LGPL-3.0-only",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": ["laser_node = avr_dexi_2024_laser.laser:main"],
+        "console_scripts": ["laser_node = avr_dexi_laser.laser:main"],
     },
 )
