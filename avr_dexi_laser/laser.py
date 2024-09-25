@@ -1,12 +1,20 @@
 import rclpy
 from rclpy.node import Node
-
+import RPi.GPIO as GPIO
 from std_srvs.msg import Trigger, SetBool
+
+import time
+
+
+PIN_NUM = 2
 
 
 class LaserNode(Node):
     def __init__(self) -> None:
         super().__init__("laser", namespace="laser")
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.output(PIN_NUM, GPIO.LOW)  # Turn it off first
 
         self.create_service(Trigger, "fire", self.fire_laser_callback)
         self.create_service(SetBool, "set_loop", self.set_loop_callback)
@@ -36,10 +44,13 @@ class LaserNode(Node):
         return res
 
     def actually_fire(self) -> None:
-        # TODO: Firing laser!
+        GPIO.output(PIN_NUM, GPIO.HIGH)
 
         if not self.loop:
             self.looper.cancel()
+        time.sleep(0.2)
+
+        GPIO.output(PIN_NUM, GPIO.LOW)
 
 
 def main() -> None:
@@ -48,6 +59,6 @@ def main() -> None:
     executer = rclpy.executers.MultiThreadedExecuter()
     rclpy.spin(node, executer)
 
- 
+
 if __name__ == "__main__":
     main()
