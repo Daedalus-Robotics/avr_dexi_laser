@@ -65,6 +65,7 @@ def main() -> None:
     node = LaserNode()
     executer = rclpy.executers.MultiThreadedExecuter()
     rclpy.spin(node, executer)
+    GPIO.cleanup()
 
 
 if __name__ == "__main__":
