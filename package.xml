@@ -4,7 +4,7 @@
     <name>avr_dexi_laser</name>
     <version>0.0.0</version>
     <description>A node to fire laser</description>
-    <maintainer email="nobu.bichanna@gmaeil.com">Nobuharu Shimazu</maintainer>
+    <maintainer email="nobu.bichanna@gmail.com">Nobuharu Shimazu</maintainer>
     <license>LGPL-3.0-only</license>
 
     <depend>rclpy</depend>
