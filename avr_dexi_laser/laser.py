@@ -44,9 +44,8 @@ class LaserNode(Node):
         return res
 
     def loop_fire(self) -> None:
-        while True:
+        while self.loop.wait():
             self.single_fire()
-            self.loop.wait()
 
     def single_fire(self) -> None:
         self.turn_on(self)
