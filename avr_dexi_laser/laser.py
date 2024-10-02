@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 import RPi.GPIO as GPIO
-from std_srvs.msg import Trigger, SetBool
+from std_srvs.srv import Trigger, SetBool
 
 from threading import Thread, Event
 import time
@@ -16,6 +16,7 @@ class LaserNode(Node):
 
         self.pin_num = 2
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin_num, GPIO.OUT)
         self.turn_off()  # Turn the laser off initially
 
         self.loop = Event()
@@ -62,8 +63,8 @@ class LaserNode(Node):
 def main() -> None:
     rclpy.init()
     node = LaserNode()
-    executer = rclpy.executers.MultiThreadedExecuter()
-    rclpy.spin(node, executer)
+    executor = rclpy.executors.MultiThreadedExecutor()
+    rclpy.spin(node, executor)
     GPIO.cleanup()
 
 
