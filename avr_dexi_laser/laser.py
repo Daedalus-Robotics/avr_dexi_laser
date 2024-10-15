@@ -3,7 +3,7 @@ from rclpy.node import Node
 import RPi.GPIO as GPIO
 from std_srvs.srv import Trigger, SetBool
 
-from threading import Thread, Event
+from threading import Thread
 import time
 
 
@@ -14,21 +14,18 @@ class LaserNode(Node):
         self.create_service(Trigger, "fire", self.fire_laser_callback)
         self.create_service(SetBool, "set_loop", self.set_loop_callback)
 
-        self.pin_num = 2
+        self.pin_num = 21
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_num, GPIO.OUT)
         self.turn_off()  # Turn the laser off initially
 
-        self.loop = Event()
-        Thread(target=self.loop_fire).start()
+        self.loop = False
+        self.loop_state = False
 
     def set_loop_callback(
         self, req: SetBool.Request, res: SetBool.Response
     ) -> SetBool.Response:
-        if req.data:
-            self.loop.set()
-        else:
-            self.loop.clear()
+        self.loop = req.data
 
         res.message = "Success"
         res.success = True
@@ -37,21 +34,31 @@ class LaserNode(Node):
     def fire_laser_callback(
         self, req: Trigger.Request, res: Trigger.Response
     ) -> Trigger.Response:
-        if not self.loop.is_set():
+        if not self.loop:
             self.single_fire()
+        else:
+            self.loop_state = True
+            self.start_loop()
 
         res.message = "Success"
         res.success = True
         return res
 
-    def loop_fire(self) -> None:
-        while self.loop.wait():
-            self.single_fire()
-
     def single_fire(self) -> None:
-        self.turn_on(self)
-        time.sleep(0.25)
-        self.turn_off(self)
+        self.loop_state = True
+        self.start_loop()
+        self.loop_state = False
+
+    def start_loop(self) -> None:
+        Thread(target=self.run_loop_thread).start()
+
+    def run_loop_thread(self) -> None:
+        while self.loop_state:
+            self.turn_on(self)
+            time.sleep(0.25)
+            self.turn_off(self)
+
+        self.get_logger().info("Laser loop ended")
 
     def turn_on(self) -> None:
         GPIO.output(self.pin_num, GPIO.HIGH)
