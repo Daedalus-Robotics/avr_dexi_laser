@@ -43,12 +43,12 @@ class LaserNode(Node):
         return res
 
     def single_fire(self) -> None:
-        def fire():
+        def f():
             self.turn_on()
             time.sleep(0.25)
             self.turn_off()
 
-        Thread(target=self.run_loop_thread).start()
+        Thread(target=f).start()
 
     def start_loop(self) -> None:
         Thread(target=self.run_loop_thread).start()
