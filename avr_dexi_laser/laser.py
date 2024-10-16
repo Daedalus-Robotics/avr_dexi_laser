@@ -19,13 +19,12 @@ class LaserNode(Node):
         GPIO.setup(self.pin_num, GPIO.OUT)
         self.turn_off()  # Turn the laser off initially
 
-        self.loop = False
         self.loop_state = False
 
     def set_loop_callback(
         self, req: SetBool.Request, res: SetBool.Response
     ) -> SetBool.Response:
-        self.loop = req.data
+        self.loop_state = req.data
 
         res.message = "Success"
         res.success = True
@@ -34,10 +33,9 @@ class LaserNode(Node):
     def fire_laser_callback(
         self, req: Trigger.Request, res: Trigger.Response
     ) -> Trigger.Response:
-        if not self.loop:
+        if not self.loop_state:
             self.single_fire()
         else:
-            self.loop_state = True
             self.start_loop()
 
         res.message = "Success"
@@ -45,18 +43,22 @@ class LaserNode(Node):
         return res
 
     def single_fire(self) -> None:
-        self.loop_state = True
-        self.start_loop()
-        self.loop_state = False
+        def fire():
+            self.turn_on()
+            time.sleep(0.25)
+            self.turn_off()
+
+        Thread(target=self.run_loop_thread).start()
 
     def start_loop(self) -> None:
         Thread(target=self.run_loop_thread).start()
 
     def run_loop_thread(self) -> None:
         while self.loop_state:
-            self.turn_on(self)
+            self.turn_on()
             time.sleep(0.25)
-            self.turn_off(self)
+            self.turn_off()
+            time.sleep(0.25)
 
         self.get_logger().info("Laser loop ended")
 
