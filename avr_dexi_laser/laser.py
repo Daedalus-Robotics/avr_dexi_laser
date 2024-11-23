@@ -21,6 +21,9 @@ class LaserNode(Node):
 
         self.loop_state = False
 
+        self.declare_parameter("laser_interval", 0.1)
+        self.laser_interval = self.get_parameter("laser_interval").value
+
     def set_loop_callback(
         self, req: SetBool.Request, res: SetBool.Response
     ) -> SetBool.Response:
@@ -45,7 +48,7 @@ class LaserNode(Node):
     def single_fire(self) -> None:
         def f():
             self.turn_on()
-            time.sleep(0.25)
+            time.sleep(self.laser_interval)
             self.turn_off()
 
         Thread(target=f).start()
@@ -56,9 +59,9 @@ class LaserNode(Node):
     def run_loop_thread(self) -> None:
         while self.loop_state:
             self.turn_on()
-            time.sleep(0.25)
+            time.sleep(self.laser_interval)
             self.turn_off()
-            time.sleep(0.25)
+            time.sleep(self.laser_interval)
 
         self.get_logger().info("Laser loop ended")
 
